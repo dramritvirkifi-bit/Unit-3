@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escape Room — Dignity, Privacy, Trust | Unit 3</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a2e;
+    --ink2: #2d2d4e;
+    --paper: #f7f6f2;
+    --card: #ffffff;
+    --purple: #4f46b8;
+    --purple-light: #eeedfe;
+    --purple-dark: #3c3489;
+    --teal: #0f6e56;
+    --teal-light: #e1f5ee;
+    --coral: #993c1d;
+    --coral-light: #faece7;
+    --amber: #854f0b;
+    --amber-light: #faeeda;
+    --green: #27500a;
+    --green-light: #eaf3de;
+    --red: #791f1f;
+    --red-light: #fcebeb;
+    --border: #e2e1dc;
+    --muted: #6b6b80;
+    --radius: 12px;
+    --font: 'Space Grotesk', system-ui, sans-serif;
+    --mono: 'Space Mono', monospace;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .site-header {
+    background: #ffffff;
+    color: var(--ink);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .site-header .brand { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--purple); }
+  .site-header .title { font-size: 14px; font-weight: 500; color: var(--muted); }
+  .progress-bar-wrap { width: 120px; height: 4px; background: var(--border); border-radius: 2px; }
+  .progress-bar-fill { height: 4px; background: var(--purple); border-radius: 2px; transition: width 0.5s ease; }
+
+  /* MAIN LAYOUT */
+  .container { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* STAGE BADGE */
+  .stage-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--purple-light);
+    color: var(--purple-dark);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 1.2rem;
+    font-family: var(--mono);
+  }
+  .stage-badge .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .dot-purple { background: #7f77dd; }
+  .dot-teal { background: #1d9e75; }
+  .dot-coral { background: #d85a30; }
+  .dot-green { background: #639922; }
+
+  /* HEADINGS */
+  h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 700; color: var(--ink); line-height: 1.2; margin-bottom: 0.75rem; }
+  h2 { font-size: 1.25rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem; }
+  h3 { font-size: 1rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.75rem; }
+  p { color: var(--ink2); margin-bottom: 0.75rem; font-size: 0.97rem; }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .card-purple { background: var(--purple-light); border-color: #afa9ec; }
+  .card-teal { background: var(--teal-light); border-color: #5dcaa5; }
+  .card-coral { background: var(--coral-light); border-color: #f0997b; }
+  .card-amber { background: var(--amber-light); border-color: #ef9f27; }
+  .card-green { background: var(--green-light); border-color: #97c459; }
+  .card-red { background: var(--red-light); border-color: #f09595; }
+  .card-dark { background: var(--purple-light); color: var(--ink); border-color: #afa9ec; }
+  .card-dark p { color: var(--ink2); }
+
+  /* SCENARIO BLOCK */
+  .scenario {
+    background: var(--purple-light);
+    color: var(--ink);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--purple);
+    font-style: italic;
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+  .scenario p { color: var(--ink2); }
+  .scenario strong { color: var(--ink); font-style: normal; }
+
+  /* QUESTION */
+  .question-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+  }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.25rem; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 0.9rem 1.1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    background: white;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    font-size: 0.93rem;
+    color: var(--ink2);
+    line-height: 1.5;
+    text-align: left;
+    width: 100%;
+  }
+  .option:hover:not(:disabled) { border-color: var(--purple); background: var(--purple-light); transform: translateX(2px); }
+  .option .opt-label { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--muted); min-width: 20px; margin-top: 2px; }
+  .option.correct { border-color: var(--teal); background: var(--teal-light); pointer-events: none; }
+  .option.correct .opt-label { color: var(--teal); }
+  .option.wrong { border-color: var(--coral); background: var(--coral-light); pointer-events: none; }
+  .option.wrong .opt-label { color: var(--coral); }
+  .option.dimmed { opacity: 0.4; pointer-events: none; }
+  .option:disabled { cursor: not-allowed; }
+
+  /* FEEDBACK */
+  .feedback {
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    display: none;
+  }
+  .feedback.show { display: block; animation: slideIn 0.3s ease; }
+  .feedback.correct-fb { background: var(--green-light); border: 1px solid #97c459; color: var(--green); }
+  .feedback.wrong-fb { background: var(--red-light); border: 1px solid #f09595; color: var(--red); }
+  .feedback strong { display: block; margin-bottom: 4px; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-family: var(--font);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .btn-primary { background: var(--purple); color: white; }
+  .btn-primary:hover { background: var(--purple-dark); transform: translateY(-1px); }
+  .btn-primary:disabled { background: #b0aed0; cursor: not-allowed; transform: none; }
+  .btn-secondary { background: white; color: var(--ink); border: 1.5px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--purple); color: var(--purple); }
+  .btn-ghost { background: transparent; color: var(--muted); font-size: 0.85rem; padding: 0.5rem 0; }
+  .btn-ghost:hover { color: var(--ink); }
+
+  /* PROGRESS STEPS */
+  .stage-map { display: flex; gap: 0; margin-bottom: 2rem; }
+  .stage-step { flex: 1; display: flex; flex-direction: column; align-items: center; }
+  .stage-step-line { height: 3px; width: 100%; background: var(--border); margin-top: 14px; }
+  .stage-step-line.done { background: var(--purple); }
+  .stage-step-circle {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; font-family: var(--mono);
+    border: 2px solid var(--border);
+    background: white;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .stage-step-circle.active { border-color: var(--purple); background: var(--purple); color: white; }
+  .stage-step-circle.done { border-color: var(--teal); background: var(--teal); color: white; }
+  .stage-step-label { font-size: 10px; color: var(--muted); margin-top: 5px; text-align: center; font-weight: 500; }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  /* MATCHING GAME */
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; }
+  .match-col-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.5rem; font-family: var(--mono); }
+  .match-item {
+    padding: 0.7rem 0.9rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    background: white;
+    transition: all 0.15s;
+    color: var(--ink2);
+    line-height: 1.4;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+  }
+  .match-item.selectable:hover { border-color: var(--purple); background: var(--purple-light); }
+  .match-item.selected { border-color: var(--purple); background: var(--purple-light); color: var(--purple-dark); font-weight: 500; }
+  .match-item.matched-correct { border-color: var(--teal); background: var(--teal-light); color: var(--teal); pointer-events: none; }
+  .match-item.matched-wrong { border-color: var(--coral); background: var(--coral-light); color: var(--coral); }
+  .match-item.disabled { opacity: 0.4; pointer-events: none; }
+
+  /* TIMER */
+  .timer-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; }
+  .timer-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;}50%{opacity:0.4;} }
+  .timer-text { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+
+  /* CODE DISPLAY */
+  .escape-code {
+    font-family: var(--mono);
+    font-size: clamp(1.4rem, 5vw, 2.2rem);
+    font-weight: 700;
+    color: var(--purple);
+    letter-spacing: 0.15em;
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--purple-light);
+    border-radius: var(--radius);
+    border: 2px dashed #afa9ec;
+    margin: 1.5rem 0;
+  }
+
+  /* STAR ANIMATION */
+  .stars { text-align: center; font-size: 2rem; margin: 1rem 0; letter-spacing: 0.3em; animation: popIn 0.5s ease; }
+  @keyframes popIn { from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;} }
+
+  /* LOCK ICON */
+  .lock-icon { font-size: 3rem; text-align: center; margin-bottom: 1rem; }
+
+  /* ATTEMPT COUNTER */
+  .attempt-counter { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 0.5rem; }
+
+  /* RULE CARD */
+  .rule-item { display: flex; gap: 10px; margin-bottom: 0.6rem; align-items: flex-start; font-size: 0.9rem; color: var(--ink2); }
+  .rule-num { font-family: var(--mono); font-weight: 700; color: var(--purple); font-size: 12px; min-width: 20px; margin-top: 2px; }
+
+  @media (max-width: 600px) {
+    .container { padding: 1rem 1rem 3rem; }
+    .match-grid { grid-template-columns: 1fr; }
+    .site-header .title { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <span class="brand">Unit 3</span>
+  <span class="title">Privacy, Confidentiality &amp; Ethical Decision-Making</span>
+  <div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════════
+     SCREEN 0: WELCOME
+═══════════════════════════════════════════════ -->
+<div class="screen active" id="screen-welcome">
+  <div style="margin-bottom:2rem;margin-top:1rem;">
+    <div class="stage-badge"><span class="dot dot-purple"></span> Escape Room</div>
+    <h1>Dignity.<br>Privacy.<br>Trust.</h1>
+    <p style="font-size:1.05rem;color:var(--muted);margin-top:0.5rem;">A digital professionalism challenge · Unit 3 · 20 minutes</p>
+  </div>
+
+  <div class="card card-purple">
+    <p style="color:var(--purple-dark);font-size:0.9rem;margin-bottom:0.5rem;">You have just watched the Unit 3 video and reflected on the Dr. Riya case. Now it is time to test what you know — under pressure.</p>
+    <p style="color:var(--purple-dark);font-size:0.9rem;margin:0;">Three stages stand between you and the escape code. Each stage must be unlocked in order. Wrong answers give you feedback and let you try again.</p>
+  </div>
+
+  <div style="margin:1.5rem 0;">
+    <div class="rule-item"><span class="rule-num">01</span><span>Complete all three stages in order.</span></div>
+    <div class="rule-item"><span class="rule-num">02</span><span>Wrong answers give you feedback — read it carefully before retrying.</span></div>
+    <div class="rule-item"><span class="rule-num">03</span><span>Stage 3 requires you to match all five correctly to proceed.</span></div>
+    <div class="rule-item"><span class="rule-num">04</span><span>Copy your escape code at the end and paste it into the Moodle text box to confirm completion.</span></div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:1rem;margin-top:1.5rem;">
+    <button class="btn btn-primary" onclick="goTo('screen-stage1-intro')">Enter the escape room →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 1 INTRO
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen-stage1-intro">
+  <div class="stage-badge"><span class="dot dot-purple"></span> Stage 1 of 3 · The Breach</div>
+  <h1>Stage 1<br><span style="color:var(--purple)">The Breach</span></h1>
+  <p style="color:var(--muted)">Answer all 3 questions correctly to unlock Stage 2.</p>
+
+  <div class="scenario">
+    <p><strong>The situation:</strong> A colleague sends you a voice note describing a patient's condition, naming the village and the patient's occupation. Later that day, you see a photograph of a patient's wound posted in an 80-member WhatsApp group. The caption reads: <em>"Interesting diabetic foot case from today's posting — can anyone identify the stage?"</em></p>
+    <p style="margin:0">The patient's face is partially visible. The neighbourhood is small.</p>
+  </div>
+
+  <button class="btn btn-primary" onclick="goTo('screen-s1-q1')">Start Stage 1 →</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 1 — Q1
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen-s1-q1">
+  <div class="stage-badge"><span class="dot dot-purple"></span> Stage 1 · Question 1 of 3</div>
+
+  <div class="question-text">A colleague sends you a voice note describing a patient's condition, naming the village and the patient's occupation. Which principle is most directly violated?</div>
+
+  <div class="options" id="s1q1-opts">
+    <button class="option" onclick="answerS1Q1(this,'A')"><span class="opt-label">A</span>Professional boundaries</button>
+    <button class="option" onclick="answerS1Q1(this,'B')"><span class="opt-label">B</span>Patient confidentiality</button>
+    <button class="option" onclick="answerS1Q1(this,'C')"><span class="opt-label">C</span>Informed consent for treatment</button>
+    <button class="option" onclick="answerS1Q1(this,'D')"><span class="opt-label">D</span>Academic integrity</button>
+  </div>
+
+  <div class="feedback wrong-fb" id="s1q1-wrong">
+    <strong>Not quite.</strong>
+    Even without a name, details like village and occupation can re-identify someone in a small community. The duty of confidentiality applies to all identifiable information — not just names. Try again.
+  </div>
+  <div class="feedback correct-fb" id="s1q1-correct">
+    <strong>Correct.</strong>
+    Patient confidentiality applies to all information that could reasonably identify a person — not only their name. The combination of location and occupation is often sufficient for re-identification.
+  </div>
+  <div class="attempt-counter" id="s1q1-attempts"></div>
+  <button class="btn btn-primary" id="s1q1-next" style="display:none;margin-top:1rem;" onclick="goTo('screen-s1-q2')">Next question →</button>
+</div>
+
+<!-- STAGE 1 — Q2 -->
+<div class="screen" id="screen-s1-q2">
+  <div class="stage-badge"><span class="dot dot-purple"></span> Stage 1 · Question 2 of 3</div>
+
+  <div class="question-text">Dr. Riya discovers the WhatsApp post three hours after it was shared. Her best first action is:</div>
+
+  <div class="options" id="s1q2-opts">
+    <button class="option" onclick="answerS1Q2(this,'A')"><span class="opt-label">A</span>Message the student privately and ask them to delete it</button>
+    <button class="option" onclick="answerS1Q2(this,'B')"><span class="opt-label">B</span>Report to the HOD immediately without speaking to the student</button>
+    <button class="option" onclick="answerS1Q2(this,'C')"><span class="opt-label">C</span>Ask the student to delete it, document the incident, and notify her supervisor</button>
+    <button class="option" onclick="answerS1Q2(this,'D')"><span class="opt-label">D</span>Post a correction in the group explaining that this was unethical</button>
+  </div>
+
+  <div class="feedback wrong-fb" id="s1q2-wrong">
+    <strong>Not quite.</strong>
+    Immediate deletion limits harm — but documentation and supervisor notification are also required for institutional accountability. Acting alone without a record leaves no basis for follow-up or learning.
+  </div>
+  <div class="feedback correct-fb" id="s1q2-correct">
+    <strong>Correct.</strong>
+    Contain the breach first, then document and escalate. This sequence protects the patient and creates an institutional record. Silence after a breach is itself an ethical failure.
+  </div>
+  <div class="attempt-counter" id="s1q2-attempts"></div>
+  <button class="btn btn-primary" id="s1q2-next" style="display:none;margin-top:1rem;" onclick="goTo('screen-s1-q3')">Next question →</button>
+</div>
+
+<!-- STAGE 1 — Q3 -->
+<div class="screen" id="screen-s1-q3">
+  <div class="stage-badge"><span class="dot dot-purple"></span> Stage 1 · Question 3 of 3</div>
+
+  <div class="question-text">Which of the following is NOT a valid justification for photographing a patient for teaching purposes?</div>
+
+  <div class="options" id="s1q3-opts">
+    <button class="option" onclick="answerS1Q3(this,'A')"><span class="opt-label">A</span>Written informed consent obtained before the photograph</button>
+    <button class="option" onclick="answerS1Q3(this,'B')"><span class="opt-label">B</span>Image fully de-identified before sharing on a closed, password-protected platform</button>
+    <button class="option" onclick="answerS1Q3(this,'C')"><span class="opt-label">C</span>The photograph is "just for learning" and will not leave the group</button>
+    <button class="option" onclick="answerS1Q3(this,'D')"><span class="opt-label">D</span>Institutional ethics board approval for the teaching case repository</button>
+  </div>
+
+  <div class="feedback wrong-fb" id="s1q3-wrong">
+    <strong>Not quite.</strong>
+    Options A, B, and D are all legitimate pathways. Think about which option relies on intention rather than actual consent or de-identification.
+  </div>
+  <div class="feedback correct-fb" id="s1q3-correct">
+    <strong>Correct.</strong>
+    Intent does not substitute for consent. "Just for learning" is not a legal or ethical justification — once shared digitally, the original sender loses all control over where the image goes.
+  </div>
+  <div class="attempt-counter" id="s1q3-attempts"></div>
+  <button class="btn btn-primary" id="s1q3-next" style="display:none;margin-top:1rem;" onclick="goTo('screen-stage1-clear')">Complete Stage 1 →</button>
+</div>
+
+<!-- STAGE 1 CLEAR -->
+<div class="screen" id="screen-stage1-clear">
+  <div class="stars">★ ★ ★</div>
+  <div class="stage-badge"><span class="dot dot-teal"></span> Stage 1 — Cleared</div>
+  <h1>You identified<br>the breach.</h1>
+  <div class="card card-teal" style="margin-top:1.5rem;">
+    <p style="color:var(--teal);font-weight:500;margin:0;">You've shown you can recognise what went wrong and who bears responsibility. Now let's see if you can navigate what comes next — when the ethical path isn't obvious.</p>
+  </div>
+  <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="goTo('screen-stage2-intro')">Enter Stage 2 →</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 2: DECISION MAZE
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen-stage2-intro">
+  <div class="stage-badge"><span class="dot dot-teal"></span> Stage 2 of 3 · The Decision Maze</div>
+  <h1>Stage 2<br><span style="color:var(--teal)">The Decision Maze</span></h1>
+  <p style="color:var(--muted)">Two linked decisions. Choose the wrong path and you loop back. Choose wisely to advance.</p>
+
+  <div class="scenario">
+    <p><strong>New situation:</strong> You are a faculty member. A PG resident asks you to help write a case report about a patient they treated last month. They have detailed clinical notes but no documented patient consent. The patient has been discharged and is difficult to contact.</p>
+    <p style="margin:0">The resident says: <em>"The case is genuinely rare — it will really help other doctors."</em></p>
+  </div>
+
+  <button class="btn btn-primary" onclick="goTo('screen-s2-dpa')">Enter the maze →</button>
+</div>
+
+<!-- STAGE 2 — Decision Point A -->
+<div class="screen" id="screen-s2-dpa">
+  <div class="stage-badge"><span class="dot dot-teal"></span> Stage 2 · Decision Point A</div>
+
+  <div class="question-text">What do you advise the resident?</div>
+
+  <div class="options" id="s2dpa-opts">
+    <button class="option" onclick="answerS2DPA(this,'A')"><span class="opt-label">A</span>Proceed — the educational benefit outweighs the consent requirement in rare cases</button>
+    <button class="option" onclick="answerS2DPA(this,'B')"><span class="opt-label">B</span>Attempt to contact the patient for consent; if genuinely unreachable, anonymise fully and seek ethics board guidance before publishing</button>
+    <button class="option" onclick="answerS2DPA(this,'C')"><span class="opt-label">C</span>Tell the resident to change identifying details and proceed — that is enough</button>
+    <button class="option" onclick="answerS2DPA(this,'D')"><span class="opt-label">D</span>Decline entirely — case reports can never be published without explicit named consent from the patient</button>
+  </div>
+
+  <div class="feedback wrong-fb" id="s2dpa-wrong">
+    <strong>Wrong path.</strong>
+    This leads to potential harm — and possibly a journal retraction. Educational benefit does not override the consent requirement, and casually changing details is not the same as ethics-board-reviewed anonymisation. Return to the decision point.
+  </div>
+  <div class="feedback correct-fb" id="s2dpa-correct">
+    <strong>Correct path chosen.</strong>
+    This balances educational value with ethical duty. Full anonymisation plus ethics board review is the accepted pathway when direct consent cannot be obtained. The maze continues — one more decision to go.
+  </div>
+  <div class="attempt-counter" id="s2dpa-attempts"></div>
+  <button class="btn btn-primary" id="s2dpa-next" style="display:none;margin-top:1rem;" onclick="goTo('screen-s2-dpb')">Face Decision Point B →</button>
+</div>
+
+<!-- STAGE 2 — Decision Point B -->
+<div class="screen" id="screen-s2-dpb">
+  <div class="stage-badge"><span class="dot dot-teal"></span> Stage 2 · Decision Point B</div>
+
+  <div class="card card-amber" style="margin-bottom:1.25rem;font-size:0.9rem;">
+    <strong>Update:</strong> The ethics board approves the case report with full anonymisation. But the resident insists on keeping the patient's exact age (67), city (Faridkot), and occupation (retired teacher) because "these are clinically relevant."
+  </div>
+
+  <div class="question-text">How do you respond?</div>
+
+  <div class="options" id="s2dpb-opts">
+    <button class="option" onclick="answerS2DPB(this,'A')"><span class="opt-label">A</span>Agree — if the ethics board approved the report, clinical details can stay</button>
+    <button class="option" onclick="answerS2DPB(this,'B')"><span class="opt-label">B</span>Suggest age range (65–70), state instead of city, and general occupational category — preserving clinical context without enabling re-identification</button>
+    <button class="option" onclick="answerS2DPB(this,'C')"><span class="opt-label">C</span>Remove all three entirely — clinical relevance is never a justification for any identifiable detail</button>
+    <button class="option" onclick="answerS2DPB(this,'D')"><span class="opt-label">D</span>Let the journal editor make the final call on what stays</button>
+  </div>
+
+  <div class="feedback wrong-fb" id="s2dpb-wrong">
+    <strong>Wrong path.</strong>
+    The combination of age + city + occupation is often sufficient for re-identification in a small community, even without a name. Ethics board approval is for the process — not a blank cheque for any detail. Think about the minimum necessary information principle.
+  </div>
+  <div class="feedback correct-fb" id="s2dpb-correct">
+    <strong>Excellent navigation.</strong>
+    The minimum necessary information principle applies here. Age ranges, regional descriptors, and general occupational categories preserve clinical learning while protecting identity. You have cleared the maze.
+  </div>
+  <div class="attempt-counter" id="s2dpb-attempts"></div>
+  <button class="btn btn-primary" id="s2dpb-next" style="display:none;margin-top:1rem;" onclick="goTo('screen-stage2-clear')">Exit the maze →</button>
+</div>
+
+<!-- STAGE 2 CLEAR -->
+<div class="screen" id="screen-stage2-clear">
+  <div class="stars">★ ★ ★</div>
+  <div class="stage-badge"><span class="dot dot-teal"></span> Stage 2 — Cleared</div>
+  <h1>You navigated<br>the maze.</h1>
+  <div class="card card-teal" style="margin-top:1.5rem;">
+    <p style="color:var(--teal);font-weight:500;margin:0;">One final challenge stands between you and the escape code. This one tests whether you can connect the right principle to the right behaviour — across five real situations.</p>
+  </div>
+  <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="goTo('screen-stage3-intro')">Enter Stage 3 →</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     STAGE 3: CODE OF CONDUCT
+═══════════════════════════════════════════════ -->
+<div class="screen" id="screen-stage3-intro">
+  <div class="stage-badge"><span class="dot dot-coral"></span> Stage 3 of 3 · The Code of Conduct</div>
+  <h1>Stage 3<br><span style="color:var(--coral)">The Code of Conduct</span></h1>
+  <p style="color:var(--muted)">Match each behaviour on the left to the principle it primarily violates on the right. You must match all five correctly to unlock the escape code.</p>
+
+  <div class="card" style="margin-top:1rem;">
+    <p style="font-size:0.9rem;margin:0;color:var(--muted)"><strong style="color:var(--ink)">How to play:</strong> Click a behaviour (left column), then click the matching principle (right column). A correct match locks in green. A wrong match flashes and resets — try again.</p>
+  </div>
+
+  <button class="btn btn-primary" style="margin-top:1.5rem;" onclick="goTo('screen-s3-match')">Start matching →</button>
+</div>
+
+<!-- STAGE 3 — MATCHING -->
+<div class="screen" id="screen-s3-match">
+  <div class="stage-badge"><span class="dot dot-coral"></span> Stage 3 · Match the behaviours</div>
+
+  <div id="match-score-bar" style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem;">
+    <span style="font-size:12px;color:var(--muted);font-family:var(--mono);">Matched:</span>
+    <div style="display:flex;gap:6px;" id="match-dots">
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--border)" id="md0"></div>
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--border)" id="md1"></div>
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--border)" id="md2"></div>
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--border)" id="md3"></div>
+      <div style="width:10px;height:10px;border-radius:50%;background:var(--border)" id="md4"></div>
+    </div>
+    <span style="font-size:12px;color:var(--muted);font-family:var(--mono);" id="match-count">0 / 5</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.25rem;">
+    <div class="match-col-head">Behaviours</div>
+    <div class="match-col-head">Principles</div>
+
+    <!-- LEFT COLUMN: Behaviours -->
+    <div class="match-item selectable" id="beh0" onclick="selectBehaviour(0)">
+      Posting a patient's ECG strip on a public Twitter thread to ask for interpretation help
+    </div>
+    <div class="match-item selectable" id="pri0" onclick="selectPrinciple(0)">
+      Patient confidentiality
+    </div>
+
+    <div class="match-item selectable" id="beh1" onclick="selectBehaviour(1)">
+      Using a student's failed OSCE video as a teaching example without asking them
+    </div>
+    <div class="match-item selectable" id="pri1" onclick="selectPrinciple(1)">
+      Learner dignity and consent
+    </div>
+
+    <div class="match-item selectable" id="beh2" onclick="selectBehaviour(2)">
+      Accepting a LinkedIn connection from a current patient who then messages you about their results
+    </div>
+    <div class="match-item selectable" id="pri2" onclick="selectPrinciple(2)">
+      Professional boundary
+    </div>
+
+    <div class="match-item selectable" id="beh3" onclick="selectBehaviour(3)">
+      Forwarding a colleague's critical feedback email about a resident to the whole department group
+    </div>
+    <div class="match-item selectable" id="pri3" onclick="selectPrinciple(3)">
+      Collegial confidentiality
+    </div>
+
+    <div class="match-item selectable" id="beh4" onclick="selectBehaviour(4)">
+      Using an AI tool to draft a discharge summary using real, identifiable patient details without institutional approval
+    </div>
+    <div class="match-item selectable" id="pri4" onclick="selectPrinciple(4)">
+      Responsible AI use / data governance
+    </div>
+  </div>
+
+  <div class="feedback wrong-fb" id="match-wrong">
+    <strong>Not a match.</strong>
+    Think about which principle is most directly at stake for that particular behaviour. Try a different pairing.
+  </div>
+  <div class="feedback correct-fb" id="match-correct-fb" style="display:none;">
+    <strong>Matched!</strong> Keep going.
+  </div>
+
+  <div id="s3-complete-btn" style="display:none;margin-top:1rem;">
+    <button class="btn btn-primary" onclick="goTo('screen-stage3-clear')">All matched — claim your code →</button>
+  </div>
+</div>
+
+<!-- STAGE 3 CLEAR + ESCAPE CODE -->
+<div class="screen" id="screen-stage3-clear">
+  <div class="stars">★ ★ ★</div>
+  <div class="stage-badge"><span class="dot dot-green"></span> All Stages — Cleared</div>
+  <h1>You're out.</h1>
+  <p style="font-size:1.05rem;color:var(--muted);">You have demonstrated that digital professionalism is not just about technology — it is about the values you bring to every interaction.</p>
+
+  <div class="escape-code">DIGNITY · PRIVACY · TRUST</div>
+
+  <div class="card" style="margin-top:1rem;">
+    <p style="font-size:0.9rem;margin-bottom:0.5rem;"><strong>What to do now:</strong></p>
+    <p style="font-size:0.9rem;margin:0;">Copy the escape code above and paste it into the Moodle text box on the Unit 3 page to confirm your completion of the activity.</p>
+  </div>
+
+  <hr class="divider">
+
+  <h2 style="margin-bottom:1rem;">What you practised today</h2>
+
+  <div class="card card-purple" style="margin-bottom:0.75rem;">
+    <strong style="color:var(--purple-dark);font-size:0.9rem;">Stage 1 — The Breach</strong>
+    <p style="margin:4px 0 0;font-size:0.88rem;color:var(--purple-dark);">Re-identification from non-name details · First-response to a digital breach · The limits of "good intentions"</p>
+  </div>
+  <div class="card card-teal" style="margin-bottom:0.75rem;">
+    <strong style="color:var(--teal);font-size:0.9rem;">Stage 2 — The Decision Maze</strong>
+    <p style="margin:4px 0 0;font-size:0.88rem;color:var(--teal);">Balancing educational value with consent · Minimum necessary information · The role of the ethics board</p>
+  </div>
+  <div class="card card-coral">
+    <strong style="color:var(--coral);font-size:0.9rem;">Stage 3 — The Code of Conduct</strong>
+    <p style="margin:4px 0 0;font-size:0.88rem;color:var(--coral);">Patient confidentiality · Learner dignity · Professional boundaries · Collegial confidentiality · Responsible AI use</p>
+  </div>
+
+  <div class="card" style="margin-top:1.5rem;background:var(--purple-light);border-color:#afa9ec;">
+    <p style="color:var(--muted);font-size:0.88rem;margin-bottom:4px;">Referenced frameworks</p>
+    <p style="color:var(--ink2);font-size:0.85rem;margin:0;">Ellaway et al. (2015) · Mohammadzadeh et al. (2024) · Masters, AMEE Guide 158 (2023)</p>
+  </div>
+</div>
+
+</div><!-- end container -->
+
+<script>
+// ─── STATE ────────────────────────────────────────
+let s1q1_attempts = 0, s1q2_attempts = 0, s1q3_attempts = 0;
+let s2dpa_attempts = 0, s2dpb_attempts = 0;
+let selectedBehaviour = null;
+let matchedCount = 0;
+// correctAnswer[behaviourIndex] = principleIndex
+const correctMatches = { 0:0, 1:1, 2:2, 3:3, 4:4 };
+let matched = [false,false,false,false,false];
+let lastWrongShown = false;
+
+// ─── NAVIGATION ───────────────────────────────────
+function goTo(id) {
+  var target = document.getElementById(id);
+  if (!target) { console.error("Screen not found:", id); return; }
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  target.classList.add('active');
+  try { window.scrollTo(0, 0); } catch(e) {}
+  updateProgress(id);
+}
+
+function updateProgress(id) {
+  const map = {
+    'screen-welcome': 0,
+    'screen-stage1-intro': 5,
+    'screen-s1-q1': 10,
+    'screen-s1-q2': 18,
+    'screen-s1-q3': 26,
+    'screen-stage1-clear': 33,
+    'screen-stage2-intro': 36,
+    'screen-s2-dpa': 44,
+    'screen-s2-dpb': 56,
+    'screen-stage2-clear': 66,
+    'screen-stage3-intro': 68,
+    'screen-s3-match': 75,
+    'screen-stage3-clear': 100,
+  };
+  const pct = map[id] || 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+// ─── STAGE 1 LOGIC ────────────────────────────────
+function lockOptions(containerId) {
+  document.querySelectorAll('#' + containerId + ' .option').forEach(o => {
+    o.disabled = true;
+    o.classList.add('dimmed');
+  });
+}
+
+function showFeedback(wrongId, correctId, isCorrect) {
+  const w = document.getElementById(wrongId);
+  const c = document.getElementById(correctId);
+  w.classList.remove('show');
+  c.classList.remove('show');
+  setTimeout(() => {
+    (isCorrect ? c : w).classList.add('show');
+  }, 50);
+}
+
+function updateAttempts(id, n) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = n > 0 ? 'Attempt ' + n + (n === 1 ? ' — try again' : '') : '';
+}
+
+function answerS1Q1(btn, choice) {
+  s1q1_attempts++;
+  const correct = choice === 'B';
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  showFeedback('s1q1-wrong', 's1q1-correct', correct);
+  updateAttempts('s1q1-attempts', correct ? 0 : s1q1_attempts);
+  if (correct) {
+    lockOptions('s1q1-opts');
+    document.getElementById('s1q1-next').style.display = 'inline-flex';
+  } else {
+    setTimeout(() => {
+      btn.classList.remove('wrong');
+    }, 900);
+  }
+}
+
+function answerS1Q2(btn, choice) {
+  s1q2_attempts++;
+  const correct = choice === 'C';
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  showFeedback('s1q2-wrong', 's1q2-correct', correct);
+  updateAttempts('s1q2-attempts', correct ? 0 : s1q2_attempts);
+  if (correct) {
+    lockOptions('s1q2-opts');
+    document.getElementById('s1q2-next').style.display = 'inline-flex';
+  } else {
+    setTimeout(() => btn.classList.remove('wrong'), 900);
+  }
+}
+
+function answerS1Q3(btn, choice) {
+  s1q3_attempts++;
+  const correct = choice === 'C';
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  showFeedback('s1q3-wrong', 's1q3-correct', correct);
+  updateAttempts('s1q3-attempts', correct ? 0 : s1q3_attempts);
+  if (correct) {
+    lockOptions('s1q3-opts');
+    document.getElementById('s1q3-next').style.display = 'inline-flex';
+  } else {
+    setTimeout(() => btn.classList.remove('wrong'), 900);
+  }
+}
+
+// ─── STAGE 2 LOGIC ────────────────────────────────
+function answerS2DPA(btn, choice) {
+  s2dpa_attempts++;
+  const correct = choice === 'B';
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  showFeedback('s2dpa-wrong', 's2dpa-correct', correct);
+  updateAttempts('s2dpa-attempts', correct ? 0 : s2dpa_attempts);
+  if (correct) {
+    lockOptions('s2dpa-opts');
+    document.getElementById('s2dpa-next').style.display = 'inline-flex';
+  } else {
+    setTimeout(() => btn.classList.remove('wrong'), 900);
+  }
+}
+
+function answerS2DPB(btn, choice) {
+  s2dpb_attempts++;
+  const correct = choice === 'B';
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  showFeedback('s2dpb-wrong', 's2dpb-correct', correct);
+  updateAttempts('s2dpb-attempts', correct ? 0 : s2dpb_attempts);
+  if (correct) {
+    lockOptions('s2dpb-opts');
+    document.getElementById('s2dpb-next').style.display = 'inline-flex';
+  } else {
+    setTimeout(() => btn.classList.remove('wrong'), 900);
+  }
+}
+
+// ─── STAGE 3 MATCHING LOGIC ───────────────────────
+function selectBehaviour(idx) {
+  if (matched[idx]) return;
+  // Deselect all behaviours
+  for (let i = 0; i < 5; i++) {
+    if (!matched[i]) document.getElementById('beh' + i).classList.remove('selected');
+  }
+  selectedBehaviour = idx;
+  document.getElementById('beh' + idx).classList.add('selected');
+  hideFeedbackMatch();
+}
+
+function selectPrinciple(idx) {
+  if (selectedBehaviour === null) return;
+  const b = selectedBehaviour;
+
+  // Check if this principle is already matched
+  if (matched[idx]) return;
+
+  const isCorrect = correctMatches[b] === idx;
+
+  if (isCorrect) {
+    // Lock both
+    document.getElementById('beh' + b).classList.remove('selected');
+    document.getElementById('beh' + b).classList.add('matched-correct');
+    document.getElementById('beh' + b).classList.remove('selectable');
+    document.getElementById('pri' + idx).classList.add('matched-correct');
+    document.getElementById('pri' + idx).classList.remove('selectable');
+    matched[idx] = true;
+    matchedCount++;
+    selectedBehaviour = null;
+    // Update dots
+    document.getElementById('md' + (matchedCount-1)).style.background = 'var(--teal)';
+    document.getElementById('match-count').textContent = matchedCount + ' / 5';
+    // Correct flash
+    const fb = document.getElementById('match-correct-fb');
+    fb.style.display = 'block';
+    setTimeout(() => { fb.style.display = 'none'; }, 1200);
+    if (matchedCount === 5) {
+      setTimeout(() => document.getElementById('s3-complete-btn').style.display = 'block', 500);
+    }
+  } else {
+    // Wrong match — flash behaviour red briefly
+    document.getElementById('beh' + b).classList.add('matched-wrong');
+    document.getElementById('pri' + idx).classList.add('matched-wrong');
+    const wfb = document.getElementById('match-wrong');
+    wfb.classList.add('show');
+    setTimeout(() => {
+      document.getElementById('beh' + b).classList.remove('matched-wrong','selected');
+      document.getElementById('pri' + idx).classList.remove('matched-wrong');
+      wfb.classList.remove('show');
+    }, 1400);
+    selectedBehaviour = null;
+  }
+}
+
+function hideFeedbackMatch() {
+  document.getElementById('match-wrong').classList.remove('show');
+}
+</script>
+</body>
+</html>
